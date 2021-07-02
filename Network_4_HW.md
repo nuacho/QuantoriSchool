@@ -1,6 +1,8 @@
 # Исследовать работу протокола ICMP и утилит traceroute и ping
 
-### 1. Выяснить количество хопов до крупных сетевых узлов: google, yandex, cisco, aws, microsoft, etc.
+### 1. Выяснить количество хопов до крупных сетевых узлов: google, yandex, cisco, aws, microsoft, etc.  
+
+Из полученной картины видно, что хост 188.232.3.252, который второй хоп, не пропускает UDP пакеты, которые **traceroute** использует по дефолту, поэтому вторым пунктом везде звезды, а если запускать **traceroute** с ключом -I, т.е. используя ICMP пакеты вместо UDP, то мы его получим. Однако, некоторые хопы не реагируют и на ICMP пакеты (возможно отключено админом), поэтому мы их никак не увидим. Это видно из последнего листинга **traceroute** Гугла. 
 
 ```traceroute to AWS.com (13.33.242.11), 30 hops max, 60 byte packets
 
@@ -144,3 +146,78 @@ traceroute to google.com (173.194.220.100), 30 hops max, 60 byte packets
 18  * * *  
 19  lk-in-f100.1e100.net (173.194.220.100)  30.300 ms  30.289 ms  30.278 ms  
 ```
+
+### 2. Попробовать определить ОС которая управляет доступными серверами этих сетевых узлов.
+
+Для определения ОС узла можно пользоваться знанием TTL пакета, но это очень неточно. Более точный способ - утилита **nmap**. Но тоже, конечно, не со 100% уверенностью. Т.к. администратор по идее должен всячески скрывать версию ОС сервера для усложнения совершения атаки на него. 
+
+Пробуем определить ОС на сервере Гугла:  
+```
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-07-01 22:40 Na?aoia (ceia)  
+
+Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times will be slower.  
+
+Nmap scan report for google.com (142.251.1.101)  
+
+Host is up (0.031s latency).  
+
+Other addresses for google.com (not scanned): 142.251.1.139 142.251.1.138 142.251.1.100 142.251.1.102 142.251.1.113  
+
+Not shown: 998 filtered ports  
+
+PORT    STATE SERVICE  
+
+80/tcp  open  http  
+
+443/tcp open  https  
+
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port  
+
+Device type: general purpose  
+
+Running (JUST GUESSING): FreeBSD 11.X (85%)  
+
+OS CPE: cpe:/a:xigmanas:xigmanas cpe:/o:freebsd:freebsd:11.2  
+
+Aggressive OS guesses: XigmaNAS (FreeBSD 11.2-RELEASE) (85%)  
+
+
+No exact OS matches for host (test conditions non-ideal).  
+
+OS detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+
+Nmap done: 1 IP address (1 host up) scanned in 29.63 seconds
+```
+
+Утилитка говорит, что с 85% вероятностью там FreeBSD 11.
+
+### 3. При помощи утилиты mtr определить узкие места в сети по маршруту до этих узлов.
+
+Использовал WinMTR.
+
+Тот же google.com. Узкие места:
+
+1. 209.85.249.158 - 72% потерянных запросов
+2. 74.125.253.94  - 100мс наихудшее время задержки
+|------------------------------------------------------------------------------------------|
+|                                      WinMTR statistics                                   |
+|                       Host              -   %  | Sent | Recv | Best | Avrg | Wrst | Last |
+|------------------------------------------------|------|------|------|------|------|------|
+|                           KEENETIC-4194 -    0 |   28 |   28 |    1 |    2 |   10 |    2 |
+|188x232x3x252.dynamic.saratov.ertelecom.ru -    0 |   28 |   28 |    2 |    3 |   10 |    2 |
+|   lag-8-435.bbr01.voronezh.ertelecom.ru -    0 |   28 |   28 |    2 |    3 |   10 |    2 |
+|                           72.14.215.165 -    5 |   24 |   23 |   16 |   18 |   47 |   17 |
+|                           72.14.215.166 -    0 |   28 |   28 |   16 |   18 |   41 |   16 |
+|                         108.170.250.146 -    0 |   28 |   28 |   16 |   20 |   37 |   21 |
+|                          209.85.249.158 -   75 |    8 |    2 |    0 |   31 |   31 |   31 |
+|                           74.125.253.94 -    0 |   28 |   28 |   30 |   35 |  100 |   31 |
+|                         142.250.238.179 -    0 |   28 |   28 |   32 |   32 |   41 |   32 |
+|                   No response from host -  100 |    6 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 |    6 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 |    6 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 |    6 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 |    6 |    0 |    0 |    0 |    0 |    0 |
+|                   No response from host -  100 |    6 |    0 |    0 |    0 |    0 |    0 |
+|                           142.251.1.139 -    0 |   28 |   28 |   30 |   31 |   38 |   31 |
+|________________________________________________|______|______|______|______|______|______|
+   WinMTR v0.92 GPL V2 by Appnor MSP - Fully Managed Hosting & Cloud Provider
