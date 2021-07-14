@@ -43,7 +43,8 @@ Host *
 ### 3. Выбрать все уникальные оболочки из файла /etc/passwd и сравнить со списком оболочек из файла /etc/shells.
 
 ```
-nuacho@nuacho-VirtualBox:~$ grep "[a-z]*sh" /etc/passwd>pass.txt | grep "[a-z]*sh" /etc/shells>shells.txt | diff shells.txt pass.txt
+nuacho@nuacho-VirtualBox:~$ grep "[a-z]*sh" /etc/passwd>pass.txt | grep "[a-z]*sh" /etc/shells>shells.txt
+nuacho@nuacho-VirtualBox:~$ diff shells.txt pass.txt
 1,8c1,2
 < # /etc/shells: valid login shells
 < /bin/sh
