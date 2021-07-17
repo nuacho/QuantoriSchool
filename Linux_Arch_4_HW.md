@@ -40,7 +40,7 @@ drwxrwsr-x  2 maxim  ftp-admin 4,0K июл 17 20:17 maxim
 drwxrwsr-x  2 sergey ftp-admin 4,0K июл 17 18:37 sergey
 nuacho@VirtualBox:/var/ftp$ sudo echo "Hello" > password.txt 
 bash: password.txt: Permission denied
-*nuacho@VirtualBox:/var/ftp$ sudo echo "Hello" | sudo dd of=/var/ftp/password.txt*
+nuacho@VirtualBox:/var/ftp$ sudo echo "Hello" | sudo dd of=/var/ftp/password.txt
 0+1 records in
 0+1 records out
 6 bytes copied, 0,00154828 s, 3,9 kB/s
