@@ -5,7 +5,7 @@
 ### 1. Используя bash и программы из пакетов util-linux и core-utils, составить pipeline, который считает количество файлов, в полном имени (включая путь) которых есть подстрока “root”, но нет подстроки “proc”.
 
 ```
-nuacho@nuacho-VirtualBox:/$ find / -iname *root* 2>/dev/null |  grep -v proc
+nuacho@nuacho-VirtualBox:/$ find / -iname *root* 2>/dev/null |  grep -v proc | wc -l 
 /home/nuacho/.local/share/gvfs-metadata/root
 /usr/lib/recovery-mode/options/root
 /usr/src/linux-headers-5.8.0-59-generic/include/config/usb/ehci/root
