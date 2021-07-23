@@ -9,5 +9,7 @@ eeeerrr.fff.rrr is not alive
 ### Ответ:
 
 ```
+#!/bin/sh
+
 ping -q -w1 -c1 "$1" >/dev/null 2>&1 && echo $1 is alive || echo $1 is not alive
 ```
