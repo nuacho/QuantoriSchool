@@ -14,6 +14,8 @@ mount /dev/loop10 /mnt/loop100
 umount /dev/loop10
 losetup --detach /dev/loop10
 
+gpg -c file.img
+
 Пароль - SaratoV
 
 Файл в корне  - file.img.gpg
