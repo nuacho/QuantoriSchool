@@ -16,6 +16,9 @@ array_users=$*
 for user in $array_users
  do
  
+ # проверяем, что пользователя с таким именем нет в системе
+ getent passwd $user >/dev/null && echo $user already exists && continue
+ 
  # добавляем пользователя с домашним каталогом
  useradd -m $user
 
