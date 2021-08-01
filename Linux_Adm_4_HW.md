@@ -91,15 +91,19 @@ nuacho@VirtualBox:/etc/systemd/system$ systemctl status fileshare.service
 SCRIPTNAME=/etc/init.d/fileshare &
 PORT=8080
 SHARE_FOLDER=~/opt/share/
+PID_FILE=/var/run/pidshare.pid
+
 
 case "$1" in
   start)
         cd $SHARE_FOLDER
-        python3 -m http.server $PORT
+        python3 -m http.server $PORT --directory ~/opt/share 1>/dev/null &
+        echo $!>$PID_FILE
         echo "HTTP Server started!"
+
         ;;
   stop)
-        pkill -15 python
+        kill -9 `cat $PID_FILE`
         echo "HTTP Server stopped!"
         ;;
  restart)
@@ -107,7 +111,7 @@ case "$1" in
         $0 start &
         ;;
  status)
-         if  ps -auxf | pgrep python
+         if  ps -auxf | fgrep -f $PID_FILE
                  then
                         echo "Sharing started" 
                  else
@@ -119,29 +123,28 @@ case "$1" in
         exit 3
         ;;
 esac
+
 ```
 ## Работоспособность
 
 ```
-nuacho@VirtualBox:/etc/init.d$ ./fileshare start &
-[1] 5985
-nuacho@VirtualBox:/etc/init.d$ Serving HTTP on 0.0.0.0 port 8080 (http://0.0.0.0:8080/) ...
-
-nuacho@VirtualBox:/etc/init.d$ ps auxf | grep python
-root         772  0.0  0.6  47956 20304 ?        Ss   июл31   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
-root         876  0.0  0.7 126656 22620 ?        Ssl  июл31   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
-nuacho      5987  0.1  0.5  35412 16476 pts/1    S    00:16   0:00          |   \_ python3 -m http.server 8080
-nuacho      5992  0.0  0.0  17676   664 pts/1    S+   00:17   0:00          \_ grep --color=auto python
-nuacho@VirtualBox:/etc/init.d$ ./fileshare stop
-Terminated
+nuacho@VirtualBox:/etc/init.d$ ./fileshare start
 HTTP Server started!
+nuacho@VirtualBox:/etc/init.d$ ./fileshare stop
 HTTP Server stopped!
-[1]+  Done                    ./fileshare start
-nuacho@VirtualBox:/etc/init.d$ ps auxf | grep python
-root         772  0.0  0.6  47956 20304 ?        Ss   июл31   0:00 /usr/bin/python3 /usr/bin/networkd-dispatcher --run-startup-triggers
-root         876  0.0  0.7 126656 22620 ?        Ssl  июл31   0:00 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
-nuacho      5997  0.0  0.0  17676   664 pts/1    S+   00:17   0:00          \_ grep --color=auto python
 nuacho@VirtualBox:/etc/init.d$ ./fileshare status
 Sharing stopped
+nuacho@VirtualBox:/etc/init.d$ ./fileshare restart
+./fileshare: line 36: kill: (4040) - No such process
+HTTP Server stopped!
+nuacho@VirtualBox:/etc/init.d$ HTTP Server started!
+
+nuacho@VirtualBox:/etc/init.d$ ./fileshare status
+root        1120  0.0  0.0 304056  2852 ?        Sl   13:16   0:04 /usr/sbin/VBoxService --pidfile /var/run/vboxadd-service.sh
+nuacho      1609  0.0  0.8 349604 24056 ?        Ssl  13:16   0:00  \_ /usr/libexec/gsd-wacom
+nuacho      4056  0.7  0.5  35416 16576 pts/0    S    21:48   0:00  \_ python3 -m http.server 8080 --directory /home/nuacho/opt/share
+Sharing started
+nuacho@VirtualBox:/etc/init.d$ 
+
 
 ```
