@@ -88,7 +88,7 @@ nuacho@VirtualBox:/etc/systemd/system$ systemctl status fileshare.service
 # Default-Stop:
 ### END INIT INFO
 
-SCRIPTNAME=/etc/init.d/fileshare &
+SCRIPTNAME=/etc/init.d/fileshare
 PORT=8080
 SHARE_FOLDER=~/opt/share/
 PID_FILE=/var/run/pidshare.pid
