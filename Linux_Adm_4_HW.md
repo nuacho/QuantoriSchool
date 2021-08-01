@@ -97,7 +97,7 @@ PID_FILE=/var/run/pidshare.pid
 case "$1" in
   start)
         cd $SHARE_FOLDER
-        python3 -m http.server $PORT --directory ~/opt/share 1>/dev/null &
+        python3 -m http.server $PORT 1>/dev/null &
         echo $!>$PID_FILE
         echo "HTTP Server started!"
 
