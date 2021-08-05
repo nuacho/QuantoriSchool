@@ -31,7 +31,7 @@ Python3: print("fatal error", file=sys.stderr)
 Python2: print (x, y)       # Печатает repr((x, y))
 Python3: print((x, y))      # Не путать с print(x, y)!
 ```
-Также можyj настроить разделитель между элементами, например:
+Также можно настроить разделитель между элементами, например:
 ```
 >>>
 >>> print("There are <", 2**32, "> possibilities!", sep="")
